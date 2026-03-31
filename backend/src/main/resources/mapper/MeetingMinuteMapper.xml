@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.meet.mapper.MeetingMinuteMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.meet.entity.MeetingMinute">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="meeting_date" property="meetingDate"/>
+        <result column="meeting_time" property="meetingTime"/>
+        <result column="location" property="location"/>
+        <result column="host_id" property="hostId"/>
+        <result column="status" property="status"/>
+        <result column="current_version" property="currentVersion"/>
+        <result column="summary" property="summary"/>
+        <result column="content" property="content"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_time" property="updatedTime"/>
+        <result column="creator_name" property="creatorName"/>
+        <result column="host_name" property="hostName"/>
+        <result column="comment_count" property="commentCount"/>
+        <result column="attachment_count" property="attachmentCount"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT mm.*, 
+               u1.name as creator_name,
+               u2.name as host_name,
+               (SELECT COUNT(*) FROM minute_comments WHERE minute_id = mm.id) as comment_count,
+               (SELECT COUNT(*) FROM minute_attachments WHERE minute_id = mm.id) as attachment_count
+        FROM meeting_minutes mm
+        LEFT JOIN users u1 ON mm.creator_id = u1.id
+        LEFT JOIN users u2 ON mm.host_id = u2.id
+        WHERE mm.id = #{id}
+    </select>
+
+    <select id="selectByCreatorId" resultMap="BaseResultMap">
+        SELECT mm.*, 
+               u1.name as creator_name,
+               u2.name as host_name,
+               (SELECT COUNT(*) FROM minute_comments WHERE minute_id = mm.id) as comment_count,
+               (SELECT COUNT(*) FROM minute_attachments WHERE minute_id = mm.id) as attachment_count
+        FROM meeting_minutes mm
+        LEFT JOIN users u1 ON mm.creator_id = u1.id
+        LEFT JOIN users u2 ON mm.host_id = u2.id
+        WHERE mm.creator_id = #{creatorId}
+        ORDER BY mm.created_time DESC
+    </select>
+
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        SELECT mm.*, 
+               u1.name as creator_name,
+               u2.name as host_name,
+               (SELECT COUNT(*) FROM minute_comments WHERE minute_id = mm.id) as comment_count,
+               (SELECT COUNT(*) FROM minute_attachments WHERE minute_id = mm.id) as attachment_count
+        FROM meeting_minutes mm
+        LEFT JOIN users u1 ON mm.creator_id = u1.id
+        LEFT JOIN users u2 ON mm.host_id = u2.id
+        WHERE mm.status = #{status}
+        ORDER BY mm.created_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT mm.*, 
+               u1.name as creator_name,
+               u2.name as host_name,
+               (SELECT COUNT(*) FROM minute_comments WHERE minute_id = mm.id) as comment_count,
+               (SELECT COUNT(*) FROM minute_attachments WHERE minute_id = mm.id) as attachment_count
+        FROM meeting_minutes mm
+        LEFT JOIN users u1 ON mm.creator_id = u1.id
+        LEFT JOIN users u2 ON mm.host_id = u2.id
+        ORDER BY mm.created_time DESC
+    </select>
+
+    <select id="search" resultMap="BaseResultMap">
+        SELECT mm.*, 
+               u1.name as creator_name,
+               u2.name as host_name,
+               (SELECT COUNT(*) FROM minute_comments WHERE minute_id = mm.id) as comment_count,
+               (SELECT COUNT(*) FROM minute_attachments WHERE minute_id = mm.id) as attachment_count
+        FROM meeting_minutes mm
+        LEFT JOIN users u1 ON mm.creator_id = u1.id
+        LEFT JOIN users u2 ON mm.host_id = u2.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (mm.title LIKE CONCAT('%', #{keyword}, '%') 
+                     OR mm.summary LIKE CONCAT('%', #{keyword}, '%')
+                     OR mm.content LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null and status != ''">
+                AND mm.status = #{status}
+            </if>
+            <if test="creatorId != null and creatorId != ''">
+                AND mm.creator_id = #{creatorId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND mm.meeting_date >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND mm.meeting_date <= #{endDate}
+            </if>
+        </where>
+        ORDER BY mm.created_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.example.meet.entity.MeetingMinute">
+        INSERT INTO meeting_minutes (id, title, meeting_date, meeting_time, location, host_id, status, current_version, summary, content, creator_id)
+        VALUES (#{id}, #{title}, #{meetingDate}, #{meetingTime}, #{location}, #{hostId}, #{status}, #{currentVersion}, #{summary}, #{content}, #{creatorId})
+    </insert>
+
+    <update id="update" parameterType="com.example.meet.entity.MeetingMinute">
+        UPDATE meeting_minutes
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="meetingDate != null">meeting_date = #{meetingDate},</if>
+            <if test="meetingTime != null">meeting_time = #{meetingTime},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="hostId != null">host_id = #{hostId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="currentVersion != null">current_version = #{currentVersion},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="content != null">content = #{content},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE meeting_minutes SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM meeting_minutes WHERE id = #{id}
+    </delete>
+
+</mapper>
