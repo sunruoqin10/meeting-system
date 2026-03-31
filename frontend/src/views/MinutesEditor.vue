@@ -268,7 +268,7 @@ import {
   InfoFilled, Document, Paperclip, EditPen, List,
   Grid, Collection, UploadFilled, Bell, Delete
 } from '@element-plus/icons-vue'
-import { minuteDetail, currentUser } from '@/mock/data'
+import { getMinuteDetail, createMinute, updateMinute, updateMinuteStatus } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -384,19 +384,38 @@ const handleSaveDraft = async () => {
 
   saveStatus.value = 'saving'
 
-  // 模拟保存
-  setTimeout(() => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const data = {
+      title: form.title,
+      meetingDate: form.meetingDate,
+      meetingTime: form.meetingTime,
+      location: form.location,
+      hostId: form.hostId || user.id,
+      content: form.content,
+      summary: form.content.substring(0, 200)
+    }
+
+    if (isEdit.value) {
+      await updateMinute(route.params.id, data)
+    } else {
+      await createMinute(data)
+    }
+
     saveStatus.value = 'saved'
-    ElMessage.success('草稿已保存')
+    ElMessage.success(isEdit.value ? '已更新' : '草稿已保存')
     contentChanged = false
 
-    // 3秒后重置状态
     setTimeout(() => {
       if (saveStatus.value === 'saved') {
         saveStatus.value = 'idle'
       }
     }, 3000)
-  }, 1000)
+  } catch (error) {
+    console.error('保存失败:', error)
+    saveStatus.value = 'error'
+    ElMessage.error(error.message || '保存失败')
+  }
 }
 
 const handleSend = () => {
@@ -418,7 +437,8 @@ const confirmSend = async () => {
       { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
     )
 
-    // 模拟发送
+    await handleSaveDraft()
+    await updateMinuteStatus(route.params.id || (await createMinute({ ...form })).id, 'sent')
     ElMessage.success('发送成功！')
     sendDialogVisible.value = false
     router.push('/minutes')
@@ -457,22 +477,27 @@ const stopAutoSave = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (isEdit.value) {
-    // 加载已有数据
-    Object.assign(form, {
-      title: minuteDetail.title,
-      meetingDate: minuteDetail.meetingDate,
-      meetingTime: minuteDetail.meetingTime,
-      location: minuteDetail.location,
-      hostId: minuteDetail.hostId,
-      attendees: minuteDetail.attendees.map(a => a.id),
-      ccList: minuteDetail.ccList.map(c => c.id),
-      content: minuteDetail.content
-    })
+    try {
+      const data = await getMinuteDetail(route.params.id)
+      Object.assign(form, {
+        title: data.title,
+        meetingDate: data.meetingDate,
+        meetingTime: data.meetingTime,
+        location: data.location,
+        hostId: data.hostId,
+        attendees: data.attendees?.map(a => a.id) || [],
+        ccList: data.ccList?.map(c => c.id) || [],
+        content: data.content
+      })
 
-    if (editorRef.value) {
-      editorRef.value.innerHTML = minuteDetail.content
+      if (editorRef.value) {
+        editorRef.value.innerHTML = data.content || ''
+      }
+    } catch (error) {
+      console.error('加载会议纪要失败:', error)
+      ElMessage.error(error.message || '加载会议纪要失败')
     }
   }
 

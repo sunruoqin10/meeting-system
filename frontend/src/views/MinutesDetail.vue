@@ -224,21 +224,48 @@ import {
   Clock, Share, Star, Delete, Calendar, LocationInformation,
   User, Paperclip, Document, ChatDotRound
 } from '@element-plus/icons-vue'
-import { minuteDetail, currentUser, commentList as mockComments } from '@/mock/data'
+import { getMinuteDetail, deleteMinute } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
 
-const detail = ref(minuteDetail)
-const commentList = ref([...mockComments])
+const detail = ref({
+  id: '',
+  title: '',
+  content: '',
+  meetingDate: '',
+  meetingTime: '',
+  location: '',
+  status: '',
+  creatorId: '',
+  attendees: [],
+  attachments: []
+})
+const commentList = ref([])
 const newComment = ref('')
 const previewVisible = ref(false)
 const previewingFile = ref(null)
 const previewUrl = ref('')
+const loading = ref(false)
 
 const canDelete = computed(() => {
-  return currentUser.id === detail.value.creatorId || currentUser.role === 'admin'
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  return user.id === detail.value.creatorId || user.role === 'admin'
 })
+
+const loadDetail = async () => {
+  try {
+    loading.value = true
+    const id = route.params.id
+    const data = await getMinuteDetail(id)
+    detail.value = data
+  } catch (error) {
+    console.error('加载会议纪要详情失败:', error)
+    ElMessage.error(error.message || '加载会议纪要详情失败')
+  } finally {
+    loading.value = false
+  }
+}
 
 const goBack = () => router.push('/minutes')
 const handleEdit = () => router.push(`/minutes/${detail.value.id}/edit`)
@@ -276,6 +303,7 @@ const handleMoreCommand = async (command) => {
           cancelButtonText: '取消',
           type: 'warning'
         })
+        await deleteMinute(detail.value.id)
         ElMessage.success('删除成功')
         router.push('/minutes')
       } catch {
@@ -333,8 +361,8 @@ const handleReply = (comment) => {
   newComment.value = `@${comment.userName} `
 }
 
-onMounted(() => {
-  // 加载详情数据
+onMounted(async () => {
+  await loadDetail()
 })
 </script>
 

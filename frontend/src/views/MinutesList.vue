@@ -103,10 +103,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import {
   Document, Calendar, User, ChatDotRound, Paperclip, Plus
 } from '@element-plus/icons-vue'
-import { minutesList as mockMinutesList } from '@/mock/data'
+import { getMinutesList } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -127,31 +128,40 @@ const statusText = {
   archived: '已归档'
 }
 
-const minutesList = ref([...mockMinutesList])
+const minutesList = ref([])
 
 const filteredList = computed(() => {
   let result = [...minutesList.value]
 
-  // 状态筛选
   if (activeTab.value !== 'all') {
     result = result.filter(m => m.status === activeTab.value)
   }
 
-  // 搜索筛选
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase()
     result = result.filter(m =>
-      m.title.toLowerCase().includes(keyword) ||
-      m.summary.toLowerCase().includes(keyword)
+      (m.title && m.title.toLowerCase().includes(keyword)) ||
+      (m.summary && m.summary.toLowerCase().includes(keyword))
     )
   }
 
-  // 排序
   result.sort((a, b) => {
     if (sortOrder.value === 'create_desc') {
-      return b.meetingDate.localeCompare(a.meetingDate)
+      const dateA = new Date(a.createdTime || '2000-01-01')
+      const dateB = new Date(b.createdTime || '2000-01-01')
+      return dateB - dateA
     } else if (sortOrder.value === 'create_asc') {
-      return a.meetingDate.localeCompare(b.meetingDate)
+      const dateA = new Date(a.createdTime || '2000-01-01')
+      const dateB = new Date(b.createdTime || '2000-01-01')
+      return dateA - dateB
+    } else if (sortOrder.value === 'meeting_desc') {
+      const dateA = new Date(a.meetingDate || '2000-01-01')
+      const dateB = new Date(b.meetingDate || '2000-01-01')
+      return dateB - dateA
+    } else if (sortOrder.value === 'meeting_asc') {
+      const dateA = new Date(a.meetingDate || '2000-01-01')
+      const dateB = new Date(b.meetingDate || '2000-01-01')
+      return dateA - dateB
     }
     return 0
   })
@@ -160,34 +170,60 @@ const filteredList = computed(() => {
   return result
 })
 
+const loadMinutes = async () => {
+  try {
+    loading.value = true
+    const params = {}
+    if (activeTab.value !== 'all') {
+      params.status = activeTab.value
+    }
+    if (searchKeyword.value) {
+      params.keyword = searchKeyword.value
+    }
+    const data = await getMinutesList(params)
+    minutesList.value = data
+  } catch (error) {
+    console.error('加载会议纪要失败:', error)
+    ElMessage.error(error.message || '加载会议纪要失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 const goToCreate = () => router.push('/minutes/create')
 const goToDetail = (item) => router.push(`/minutes/${item.id}`)
 const handleEdit = (item) => router.push(`/minutes/${item.id}/edit`)
 
 const handleTabChange = () => {
   currentPage.value = 1
+  loadMinutes()
 }
 
 const handlePageChange = (page) => {
   currentPage.value = page
-  // 实际项目中这里会请求新数据
 }
 
 const clearSearch = () => {
   searchKeyword.value = ''
+  loadMinutes()
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (route.query.keyword) {
     searchKeyword.value = route.query.keyword
   }
-  total.value = filteredList.value.length
+  await loadMinutes()
 })
 
 watch(() => route.query.keyword, (val) => {
   if (val) {
     searchKeyword.value = val
+    loadMinutes()
   }
+})
+
+watch([activeTab, sortOrder], () => {
+  loadMinutes()
 })
 </script>
 
