@@ -78,7 +78,7 @@
         <el-table-column label="IP地址" width="150">
           <template #default="{ row }">
             <span class="ip-text">
-              <el-icon><Globe /></el-icon>
+              <el-icon><Location /></el-icon>
               {{ row.ipAddress }}
             </span>
           </template>
@@ -100,7 +100,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Refresh, Download, Globe } from '@element-plus/icons-vue'
+import { Refresh, Download, Location } from '@element-plus/icons-vue'
 import { operationLogs as mockLogs, userList } from '@/mock/data'
 
 const loading = ref(false)

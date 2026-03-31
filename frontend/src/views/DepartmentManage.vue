@@ -54,7 +54,7 @@
         <template #default="{ node, data }">
           <div class="tree-node">
             <div class="node-content">
-              <el-icon><Office /></el-icon>
+              <el-icon><OfficeBuilding /></el-icon>
               <span class="node-label">{{ data.name }}</span>
               <el-tag size="small" type="info">{{ data.userCount }}人</el-tag>
             </div>
@@ -150,7 +150,7 @@
 import { ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  Search, Plus, Upload, Download, Grid, List, Office
+  Search, Plus, Upload, Download, Grid, List, OfficeBuilding
 } from '@element-plus/icons-vue'
 import { departmentTree as mockTree, departmentList as mockList } from '@/mock/data'
 

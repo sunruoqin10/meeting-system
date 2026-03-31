@@ -79,7 +79,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="copy">
-                  <el-icon><Copy /></el-icon>
+                  <el-icon><DocumentCopy /></el-icon>
                   复制
                 </el-dropdown-item>
                 <el-dropdown-item command="share">
@@ -143,8 +143,8 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  Plus, User, Document, More, Copy, Share, Delete,
-  CheckSquare, Calendar, MessageSquare, Rocket, FileText
+  Plus, User, Document, More, DocumentCopy, Share, Delete,
+  Check, Calendar, ChatDotRound, Promotion, Files
 } from '@element-plus/icons-vue'
 import { templateList as mockTemplateList } from '@/mock/data'
 

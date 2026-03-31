@@ -219,7 +219,7 @@ export const templateList = [
     id: 't001',
     name: '决议型模板',
     type: 'preset',
-    icon: 'CheckSquare',
+    icon: 'Check',
     description: '适用于需要做出明确决策的会议',
     usageCount: 45,
     creatorName: '系统'
@@ -237,7 +237,7 @@ export const templateList = [
     id: 't003',
     name: '讨论型模板',
     type: 'preset',
-    icon: 'MessageSquare',
+    icon: 'ChatDotRound',
     description: '适用于头脑风暴和讨论',
     usageCount: 38,
     creatorName: '系统'
@@ -246,7 +246,7 @@ export const templateList = [
     id: 't004',
     name: '项目启动会模板',
     type: 'shared',
-    icon: 'Rocket',
+    icon: 'Promotion',
     description: '适用于新项目启动会议',
     usageCount: 15,
     creatorName: '张三'
@@ -255,7 +255,7 @@ export const templateList = [
     id: 't005',
     name: '我的自定义模板',
     type: 'custom',
-    icon: 'FileText',
+    icon: 'Files',
     description: '个人常用的会议模板',
     usageCount: 8,
     creatorName: '李四'

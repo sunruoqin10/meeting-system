@@ -53,7 +53,7 @@
 
             <div class="version-actions">
               <el-button type="primary" text size="small" @click="handleView(version)">
-                <el-icon><Eye /></el-icon>
+                <el-icon><View /></el-icon>
                 查看
               </el-button>
               <el-button type="primary" text size="small" @click="handleCompare(version)">
@@ -142,7 +142,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  ArrowLeft, Eye, Connection, RefreshLeft, Right,
+  ArrowLeft, View, Connection, RefreshLeft, Right,
   InfoFilled, User, Close, FullScreen
 } from '@element-plus/icons-vue'
 import { versionHistory as mockVersionHistory, minuteDetail } from '@/mock/data'

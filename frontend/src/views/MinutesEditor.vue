@@ -125,13 +125,13 @@
           <div class="editor-toolbar">
             <el-button-group>
               <el-button size="small" @click="execCommand('bold')">
-                <el-icon><Bold /></el-icon>
+                <el-icon><EditPen /></el-icon>
               </el-button>
               <el-button size="small" @click="execCommand('italic')">
-                <el-icon><Italic /></el-icon>
+                <el-icon><Edit /></el-icon>
               </el-button>
               <el-button size="small" @click="execCommand('underline')">
-                <el-icon><Icon name="underline" /></el-icon>
+                <el-icon><Delete /></el-icon>
               </el-button>
             </el-button-group>
             <el-divider direction="vertical" />
@@ -263,8 +263,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   ArrowLeft, ArrowRight, Check, Warning, Loading,
-  InfoFilled, Document, Paperclip, Bold, Italic, List,
-  Grid, Collection, UploadFilled, Bell
+  InfoFilled, Document, Paperclip, EditPen, List,
+  Grid, Collection, UploadFilled, Bell, Delete
 } from '@element-plus/icons-vue'
 import { minuteDetail, currentUser } from '@/mock/data'
 

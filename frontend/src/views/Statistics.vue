@@ -45,7 +45,7 @@
 
       <div class="stat-card">
         <div class="stat-icon" style="background: #D1FAE5;">
-          <el-icon :size="28" color="#10B981"><Send /></el-icon>
+          <el-icon :size="28" color="#10B981"><Share /></el-icon>
         </div>
         <div class="stat-content">
           <span class="stat-value">{{ stats.overview.sentMinutes }}</span>
@@ -179,7 +179,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
-  Download, Document, Send, Check, User, TrendCharts,
+  Download, Document, Share, Check, User, TrendCharts,
   PieChart, Timer
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'

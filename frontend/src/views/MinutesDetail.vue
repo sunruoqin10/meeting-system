@@ -22,7 +22,7 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="versions">
-                <el-icon><History /></el-icon>
+                <el-icon><Clock /></el-icon>
                 版本历史
               </el-dropdown-item>
               <el-dropdown-item command="share">
@@ -221,7 +221,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   ArrowLeft, ArrowRight, ArrowDown, Edit, Download,
-  History, Share, Star, Delete, Calendar, LocationInformation,
+  Clock, Share, Star, Delete, Calendar, LocationInformation,
   User, Paperclip, Document, ChatDotRound
 } from '@element-plus/icons-vue'
 import { minuteDetail, currentUser, commentList as mockComments } from '@/mock/data'

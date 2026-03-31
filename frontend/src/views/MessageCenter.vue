@@ -111,8 +111,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
-  Check, Setting, Bell, ClipboardList, CheckCircle,
-  Megaphone, ChatDotRound, User
+  Check, Setting, Bell, Memo, SuccessFilled,
+  Notification, ChatDotRound, User
 } from '@element-plus/icons-vue'
 import { messageList as mockMessageList } from '@/mock/data'
 
@@ -141,9 +141,9 @@ const unreadCount = computed(() => totalUnread.value)
 
 const getMessageIcon = (type) => {
   const icons = {
-    todo: 'ClipboardList',
-    review: 'CheckCircle',
-    system: 'Megaphone',
+    todo: 'Memo',
+    review: 'SuccessFilled',
+    system: 'Notification',
     cc: 'ChatDotRound'
   }
   return icons[type] || 'Bell'
