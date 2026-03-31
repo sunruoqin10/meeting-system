@@ -147,6 +147,7 @@ a {
 .el-button--primary {
   background-color: var(--color-primary) !important;
   border-color: var(--color-primary) !important;
+  color: #FFFFFF !important;
 
   &:hover {
     background-color: var(--color-primary-dark) !important;
@@ -157,6 +158,7 @@ a {
 .el-button--warning {
   background-color: var(--color-cta) !important;
   border-color: var(--color-cta) !important;
+  color: #FFFFFF !important;
 }
 
 // Input Overrides
