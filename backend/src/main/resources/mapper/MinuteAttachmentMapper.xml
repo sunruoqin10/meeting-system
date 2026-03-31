@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.meet.mapper.MinuteAttachmentMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.meet.entity.MinuteAttachment">
+        <id column="id" property="id"/>
+        <result column="minute_id" property="minuteId"/>
+        <result column="version_id" property="versionId"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_type" property="fileType"/>
+        <result column="file_path" property="filePath"/>
+        <result column="uploader_id" property="uploaderId"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="uploader_name" property="uploaderName"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT ma.*, u.name as uploader_name
+        FROM minute_attachments ma
+        LEFT JOIN users u ON ma.uploader_id = u.id
+        WHERE ma.id = #{id}
+    </select>
+
+    <select id="selectByMinuteId" resultMap="BaseResultMap">
+        SELECT ma.*, u.name as uploader_name
+        FROM minute_attachments ma
+        LEFT JOIN users u ON ma.uploader_id = u.id
+        WHERE ma.minute_id = #{minuteId}
+        ORDER BY ma.created_time DESC
+    </select>
+
+    <select id="selectByVersionId" resultMap="BaseResultMap">
+        SELECT ma.*, u.name as uploader_name
+        FROM minute_attachments ma
+        LEFT JOIN users u ON ma.uploader_id = u.id
+        WHERE ma.version_id = #{versionId}
+        ORDER BY ma.created_time DESC
+    </select>
+
+    <select id="selectByUploaderId" resultMap="BaseResultMap">
+        SELECT ma.*, u.name as uploader_name
+        FROM minute_attachments ma
+        LEFT JOIN users u ON ma.uploader_id = u.id
+        WHERE ma.uploader_id = #{uploaderId}
+        ORDER BY ma.created_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT ma.*, u.name as uploader_name
+        FROM minute_attachments ma
+        LEFT JOIN users u ON ma.uploader_id = u.id
+        ORDER BY ma.created_time DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO minute_attachments (id, minute_id, version_id, file_name, file_size, file_type, file_path, uploader_id, created_time)
+        VALUES (#{id}, #{minuteId}, #{versionId}, #{fileName}, #{fileSize}, #{fileType}, #{filePath}, #{uploaderId}, #{createdTime})
+    </insert>
+
+    <update id="update">
+        UPDATE minute_attachments
+        <set>
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="fileType != null">file_type = #{fileType},</if>
+            <if test="filePath != null">file_path = #{filePath},</if>
+            created_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM minute_attachments WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMinuteId">
+        DELETE FROM minute_attachments WHERE minute_id = #{minuteId}
+    </delete>
+
+    <update id="updateUploaderIdToNull">
+        UPDATE minute_attachments SET uploader_id = NULL WHERE uploader_id = #{uploaderId}
+    </update>
+
+</mapper>

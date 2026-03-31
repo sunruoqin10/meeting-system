@@ -53,11 +53,6 @@
           </el-button>
         </el-form-item>
       </el-form>
-
-      <div class="login-footer">
-        <span>还没有账号？</span>
-        <el-link type="primary" :underline="false" @click="goRegister">立即注册</el-link>
-      </div>
     </div>
   </div>
 </template>
@@ -67,7 +62,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Message, Lock, Document } from '@element-plus/icons-vue'
-import { currentUser } from '@/mock/data'
+import { login } from '@/api'
 
 const router = useRouter()
 const formRef = ref(null)
@@ -98,21 +93,23 @@ const handleLogin = async () => {
 
     loading.value = true
 
-    // 模拟登录请求
-    setTimeout(() => {
-      // 使用mock数据模拟登录成功
-      localStorage.setItem('token', 'mock_token_' + Date.now())
-      localStorage.setItem('user', JSON.stringify(currentUser))
+    try {
+      const res = await login({
+        email: form.email,
+        password: form.password
+      })
+
+      localStorage.setItem('token', res.token)
+      localStorage.setItem('user', JSON.stringify(res.user))
 
       ElMessage.success('登录成功')
       router.push('/dashboard')
+    } catch (error) {
+      console.error('登录失败:', error)
+    } finally {
       loading.value = false
-    }, 1000)
+    }
   })
-}
-
-const goRegister = () => {
-  ElMessage.info('注册功能暂未开放')
 }
 </script>
 
@@ -186,16 +183,6 @@ const goRegister = () => {
   &:hover {
     opacity: 0.9;
     transform: translateY(-1px);
-  }
-}
-
-.login-footer {
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-
-  span {
-    margin-right: var(--space-xs);
   }
 }
 </style>

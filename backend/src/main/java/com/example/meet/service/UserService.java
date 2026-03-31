@@ -1,16 +1,17 @@
 package com.example.meet.service;
 
 import com.example.meet.dto.LoginRequest;
-import com.example.meet.dto.RegisterRequest;
+import com.example.meet.entity.MeetingMinute;
 import com.example.meet.entity.User;
-import com.example.meet.mapper.UserMapper;
+import com.example.meet.mapper.*;
 import com.example.meet.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +22,28 @@ public class UserService {
     private UserMapper userMapper;
     
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private DepartmentMapper departmentMapper;
+    
+    @Autowired
+    private MeetingMinuteMapper meetingMinuteMapper;
+    
+    @Autowired
+    private OperationLogMapper operationLogMapper;
+    
+    @Autowired
+    private MessageMapper messageMapper;
+    
+    @Autowired
+    private TaskAssignmentMapper taskAssignmentMapper;
+    
+    @Autowired
+    private MinuteCommentMapper minuteCommentMapper;
+    
+    @Autowired
+    private MinuteAttachmentMapper minuteAttachmentMapper;
+    
+    @Autowired
+    private MeetingAttendeeMapper meetingAttendeeMapper;
     
     @Autowired
     private JwtUtil jwtUtil;
@@ -37,7 +59,7 @@ public class UserService {
             throw new RuntimeException("用户已被禁用");
         }
         
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!request.getPassword().equals(user.getPassword())) {
             throw new RuntimeException("密码错误");
         }
         
@@ -52,48 +74,66 @@ public class UserService {
         return result;
     }
     
-    public void register(RegisterRequest request) {
-        User existUser = userMapper.selectByEmail(request.getEmail());
-        if (existUser != null) {
-            throw new RuntimeException("邮箱已被注册");
-        }
-        
-        existUser = userMapper.selectByUsername(request.getUsername());
-        if (existUser != null) {
-            throw new RuntimeException("用户名已存在");
-        }
-        
-        User user = new User();
-        user.setId(UUID.randomUUID().toString().replace("-", ""));
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setPhone(request.getPhone());
-        user.setDepartmentId(request.getDepartmentId());
-        user.setRole("user");
-        user.setStatus(1);
-        user.setPasswordExpireDate(LocalDate.now().plusDays(90));
-        
-        userMapper.insert(user);
-    }
-    
     public User getUserInfo(String userId) {
         return userMapper.selectById(userId);
     }
     
     public void updateUserInfo(User user) {
+        if (user.getDepartmentId() != null && !user.getDepartmentId().isEmpty()) {
+            if (departmentMapper.selectById(user.getDepartmentId()) == null) {
+                throw new RuntimeException("指定的部门不存在");
+            }
+        }
         userMapper.update(user);
     }
     
     public void updatePassword(String userId, String oldPassword, String newPassword) {
         User user = userMapper.selectById(userId);
         
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        if (!oldPassword.equals(user.getPassword())) {
             throw new RuntimeException("原密码错误");
         }
         
-        userMapper.updatePassword(userId, passwordEncoder.encode(newPassword));
+        userMapper.updatePassword(userId, newPassword);
+    }
+    
+    @Transactional
+    public void deleteUser(String userId) {
+        User user = userMapper.selectById(userId);
+        
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        if ("admin".equals(user.getRole())) {
+            throw new RuntimeException("管理员账户不能删除");
+        }
+        
+        List<MeetingMinute> createdByUser = meetingMinuteMapper.selectByCreatorId(userId);
+        if (createdByUser != null && !createdByUser.isEmpty()) {
+            throw new RuntimeException("该用户创建的会议纪要未删除，无法删除用户");
+        }
+        
+        List<MeetingMinute> hostedByUser = meetingMinuteMapper.selectByHostId(userId);
+        if (hostedByUser != null && !hostedByUser.isEmpty()) {
+            throw new RuntimeException("该用户主持的会议纪要未删除，无法删除用户");
+        }
+        
+        departmentMapper.updateManagerIdToNull(userId);
+        
+        operationLogMapper.updateUserIdToNull(userId);
+        
+        messageMapper.deleteByReceiverId(userId);
+        
+        taskAssignmentMapper.updateAssigneeIdToNull(userId);
+        
+        minuteCommentMapper.updateUserIdToNull(userId);
+        
+        minuteAttachmentMapper.updateUploaderIdToNull(userId);
+        
+        meetingAttendeeMapper.deleteByUserId(userId);
+        
+        userMapper.deleteById(userId);
     }
     
     private Map<String, Object> getUserInfo(User user) {

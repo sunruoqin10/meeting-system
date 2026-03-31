@@ -47,6 +47,19 @@
         ORDER BY mm.created_time DESC
     </select>
 
+    <select id="selectByHostId" resultMap="BaseResultMap">
+        SELECT mm.*, 
+               u1.name as creator_name,
+               u2.name as host_name,
+               (SELECT COUNT(*) FROM minute_comments WHERE minute_id = mm.id) as comment_count,
+               (SELECT COUNT(*) FROM minute_attachments WHERE minute_id = mm.id) as attachment_count
+        FROM meeting_minutes mm
+        LEFT JOIN users u1 ON mm.creator_id = u1.id
+        LEFT JOIN users u2 ON mm.host_id = u2.id
+        WHERE mm.host_id = #{hostId}
+        ORDER BY mm.created_time DESC
+    </select>
+
     <select id="selectByStatus" resultMap="BaseResultMap">
         SELECT mm.*, 
                u1.name as creator_name,
@@ -97,7 +110,7 @@
                 AND mm.meeting_date >= #{startDate}
             </if>
             <if test="endDate != null and endDate != ''">
-                AND mm.meeting_date <= #{endDate}
+                AND mm.meeting_date &lt;= #{endDate}
             </if>
         </where>
         ORDER BY mm.created_time DESC
@@ -120,6 +133,7 @@
             <if test="currentVersion != null">current_version = #{currentVersion},</if>
             <if test="summary != null">summary = #{summary},</if>
             <if test="content != null">content = #{content},</if>
+            updated_time = NOW()
         </set>
         WHERE id = #{id}
     </update>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.meet.mapper.TaskAssignmentMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.meet.entity.TaskAssignment">
+        <id column="id" property="id"/>
+        <result column="minute_id" property="minuteId"/>
+        <result column="assignee_id" property="assigneeId"/>
+        <result column="task_content" property="taskContent"/>
+        <result column="deadline" property="deadline"/>
+        <result column="status" property="status"/>
+        <result column="priority" property="priority"/>
+        <result column="completed_time" property="completedTime"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM task_assignments WHERE id = #{id}
+    </select>
+
+    <select id="selectByMinuteId" resultMap="BaseResultMap">
+        SELECT * FROM task_assignments WHERE minute_id = #{minuteId} ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByAssigneeId" resultMap="BaseResultMap">
+        SELECT * FROM task_assignments WHERE assignee_id = #{assigneeId} ORDER BY created_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM task_assignments ORDER BY created_time DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO task_assignments (id, minute_id, assignee_id, task_content, deadline, status, priority, completed_time, created_time, updated_time)
+        VALUES (#{id}, #{minuteId}, #{assigneeId}, #{taskContent}, #{deadline}, #{status}, #{priority}, #{completedTime}, #{createdTime}, #{updatedTime})
+    </insert>
+
+    <update id="update">
+        UPDATE task_assignments
+        <set>
+            <if test="taskContent != null">task_content = #{taskContent},</if>
+            <if test="deadline != null">deadline = #{deadline},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="completedTime != null">completed_time = #{completedTime},</if>
+            updated_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM task_assignments WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMinuteId">
+        DELETE FROM task_assignments WHERE minute_id = #{minuteId}
+    </delete>
+
+    <update id="updateAssigneeIdToNull">
+        UPDATE task_assignments SET assignee_id = NULL WHERE assignee_id = #{assigneeId}
+    </update>
+
+</mapper>

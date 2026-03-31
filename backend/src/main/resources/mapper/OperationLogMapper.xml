@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.meet.mapper.OperationLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.meet.entity.OperationLog">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="module" property="module"/>
+        <result column="operation" property="operation"/>
+        <result column="resource_id" property="resourceId"/>
+        <result column="resource_type" property="resourceType"/>
+        <result column="details" property="details"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM operation_logs WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT * FROM operation_logs WHERE user_id = #{userId} ORDER BY created_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM operation_logs ORDER BY created_time DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO operation_logs (id, user_id, user_name, module, operation, resource_id, resource_type, details, ip_address, created_time)
+        VALUES (#{id}, #{userId}, #{userName}, #{module}, #{operation}, #{resourceId}, #{resourceType}, #{details}, #{ipAddress}, #{createdTime})
+    </insert>
+
+    <update id="update">
+        UPDATE operation_logs
+        <set>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="module != null">module = #{module},</if>
+            <if test="operation != null">operation = #{operation},</if>
+            <if test="resourceId != null">resource_id = #{resourceId},</if>
+            <if test="resourceType != null">resource_type = #{resourceType},</if>
+            <if test="details != null">details = #{details},</if>
+            <if test="ipAddress != null">ip_address = #{ipAddress},</if>
+            created_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM operation_logs WHERE id = #{id}
+    </delete>
+
+    <update id="updateUserIdToNull">
+        UPDATE operation_logs SET user_id = NULL WHERE user_id = #{userId}
+    </update>
+
+</mapper>

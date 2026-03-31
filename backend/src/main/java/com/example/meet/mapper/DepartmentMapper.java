@@ -20,4 +20,6 @@ public interface DepartmentMapper {
     int update(Department department);
     
     int deleteById(@Param("id") String id);
+    
+    int updateManagerIdToNull(@Param("managerId") String managerId);
 }

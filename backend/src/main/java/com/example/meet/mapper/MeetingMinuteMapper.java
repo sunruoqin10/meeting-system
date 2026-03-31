@@ -13,6 +13,8 @@ public interface MeetingMinuteMapper {
     
     List<MeetingMinute> selectByCreatorId(@Param("creatorId") String creatorId);
     
+    List<MeetingMinute> selectByHostId(@Param("hostId") String hostId);
+    
     List<MeetingMinute> selectByStatus(@Param("status") String status);
     
     List<MeetingMinute> selectAll();

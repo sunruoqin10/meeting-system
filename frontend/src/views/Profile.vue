@@ -176,8 +176,9 @@ import {
   Upload, Edit, Check, Lock, Phone, Bell, Location, Calendar
 } from '@element-plus/icons-vue'
 import { currentUser } from '@/mock/data'
+import { getUserInfo, updateUserInfo, updatePassword } from '@/api/auth'
 
-const userInfo = ref(currentUser)
+const userInfo = ref({})
 const editing = ref(false)
 const notificationEnabled = ref(true)
 const passwordDialogVisible = ref(false)
@@ -196,6 +197,8 @@ const passwordForm = reactive({
   newPassword: '',
   confirmPassword: ''
 })
+
+const passwordFormRef = ref(null)
 
 const passwordRules = {
   oldPassword: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
@@ -231,10 +234,25 @@ const getRoleName = (role) => {
   return names[role] || role
 }
 
-const toggleEdit = () => {
+const toggleEdit = async () => {
   if (editing.value) {
     // 保存
-    ElMessage.success('资料更新成功')
+    try {
+      await updateUserInfo({
+        id: userInfo.value.id,
+        name: form.name,
+        phone: form.phone,
+        departmentId: form.departmentId
+      })
+      ElMessage.success('资料更新成功')
+      // 更新本地显示的用户信息
+      userInfo.value.name = form.name
+      userInfo.value.phone = form.phone
+      userInfo.value.departmentId = form.departmentId
+    } catch (error) {
+      ElMessage.error(error.message || '资料更新失败')
+      return
+    }
   }
   editing.value = !editing.value
 }
@@ -251,9 +269,24 @@ const showPhoneDialog = () => {
   phoneDialogVisible.value = true
 }
 
-const handlePasswordChange = () => {
-  ElMessage.success('密码修改成功，请重新登录')
-  passwordDialogVisible.value = false
+const handlePasswordChange = async () => {
+  try {
+    await passwordFormRef.value.validate()
+    await updatePassword({
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword
+    })
+    ElMessage.success('密码修改成功，请重新登录')
+    passwordDialogVisible.value = false
+    passwordForm.oldPassword = ''
+    passwordForm.newPassword = ''
+    passwordForm.confirmPassword = ''
+  } catch (error) {
+    if (error === false) {
+      return
+    }
+    ElMessage.error(error.message || '密码修改失败')
+  }
 }
 
 const sendVerifyCode = () => {
@@ -276,13 +309,22 @@ const handlePhoneChange = () => {
   phoneDialogVisible.value = false
 }
 
-onMounted(() => {
-  Object.assign(form, {
-    name: userInfo.value.name,
-    email: userInfo.value.email,
-    phone: userInfo.value.phone,
-    departmentId: userInfo.value.departmentId
-  })
+onMounted(async () => {
+  try {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const data = await getUserInfo(token)
+      userInfo.value = data
+      Object.assign(form, {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        departmentId: data.departmentId
+      })
+    }
+  } catch (error) {
+    ElMessage.error('获取用户信息失败')
+  }
 })
 </script>
 

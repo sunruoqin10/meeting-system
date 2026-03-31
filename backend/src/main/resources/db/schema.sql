@@ -20,8 +20,7 @@ CREATE TABLE users (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_department (department_id),
-    INDEX idx_email (email),
-    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
+    INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 2. 部门表
@@ -36,9 +35,7 @@ CREATE TABLE departments (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_parent (parent_id),
-    INDEX idx_manager (manager_id),
-    FOREIGN KEY (parent_id) REFERENCES departments(id) ON DELETE CASCADE,
-    FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL
+    INDEX idx_manager (manager_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门表';
 
 -- 3. 会议纪要表
@@ -59,9 +56,7 @@ CREATE TABLE meeting_minutes (
     INDEX idx_creator (creator_id),
     INDEX idx_host (host_id),
     INDEX idx_status (status),
-    INDEX idx_meeting_date (meeting_date),
-    FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (host_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_meeting_date (meeting_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会议纪要表';
 
 -- 4. 纪要版本表
@@ -75,9 +70,7 @@ CREATE TABLE minute_versions (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     UNIQUE KEY uk_minute_version (minute_id, version),
     INDEX idx_minute (minute_id),
-    INDEX idx_creator (creator_id),
-    FOREIGN KEY (minute_id) REFERENCES meeting_minutes(id) ON DELETE CASCADE,
-    FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_creator (creator_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='纪要版本表';
 
 -- 5. 任务指派表
@@ -94,9 +87,7 @@ CREATE TABLE task_assignments (
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_minute (minute_id),
     INDEX idx_assignee (assignee_id),
-    INDEX idx_status (status),
-    FOREIGN KEY (minute_id) REFERENCES meeting_minutes(id) ON DELETE CASCADE,
-    FOREIGN KEY (assignee_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='任务指派表';
 
 -- 6. 模板表
@@ -111,8 +102,7 @@ CREATE TABLE templates (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_type (type),
-    INDEX idx_creator (creator_id),
-    FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_creator (creator_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模板表';
 
 -- 7. 会议参会人员表
@@ -125,9 +115,7 @@ CREATE TABLE meeting_attendees (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     UNIQUE KEY uk_minute_user (minute_id, user_id),
     INDEX idx_minute (minute_id),
-    INDEX idx_user (user_id),
-    FOREIGN KEY (minute_id) REFERENCES meeting_minutes(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会议参会人员表';
 
 -- 8. 消息表
@@ -143,8 +131,7 @@ CREATE TABLE messages (
     INDEX idx_receiver (receiver_id),
     INDEX idx_is_read (is_read),
     INDEX idx_type (type),
-    INDEX idx_created_time (created_time),
-    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_created_time (created_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息表';
 
 -- 9. 操作日志表
@@ -161,8 +148,7 @@ CREATE TABLE operation_logs (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX idx_user (user_id),
     INDEX idx_module (module),
-    INDEX idx_created_time (created_time),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    INDEX idx_created_time (created_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
 
 -- 10. 附件表
@@ -178,10 +164,7 @@ CREATE TABLE minute_attachments (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX idx_minute (minute_id),
     INDEX idx_version (version_id),
-    INDEX idx_uploader (uploader_id),
-    FOREIGN KEY (minute_id) REFERENCES meeting_minutes(id) ON DELETE CASCADE,
-    FOREIGN KEY (version_id) REFERENCES minute_versions(id) ON DELETE CASCADE,
-    FOREIGN KEY (uploader_id) REFERENCES users(id) ON DELETE CASCADE
+    INDEX idx_uploader (uploader_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='附件表';
 
 -- 11. 评论表
@@ -196,10 +179,7 @@ CREATE TABLE minute_comments (
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX idx_minute (minute_id),
     INDEX idx_user (user_id),
-    INDEX idx_parent (parent_id),
-    FOREIGN KEY (minute_id) REFERENCES meeting_minutes(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_id) REFERENCES minute_comments(id) ON DELETE CASCADE
+    INDEX idx_parent (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
 
 -- 插入初始部门数据
