@@ -39,6 +39,7 @@
         start-placeholder="开始时间"
         end-placeholder="结束时间"
         format="YYYY-MM-DD HH:mm"
+        value-format="YYYY-MM-DD HH:mm:ss"
         style="width: 360px;"
       />
     </div>

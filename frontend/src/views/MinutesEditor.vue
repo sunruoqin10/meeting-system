@@ -38,6 +38,7 @@
                 v-model="form.meetingDate"
                 type="date"
                 format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
                 placeholder="选择日期"
                 style="width: 100%;"
               />
@@ -47,6 +48,7 @@
               <el-time-picker
                 v-model="form.meetingTime"
                 format="HH:mm"
+                value-format="HH:mm"
                 placeholder="选择时间"
                 style="width: 100%;"
               />
